@@ -18,6 +18,7 @@ public:
   Account() {}
   Account(string fname, string lname, float balance);
   long getAccNo() { return accountNumber; }
+  static void setLastAccountNumber(long accountNumber);
   string getFirstName() { return firstName; }
   string getLastName() { return lastName; }
   float getBalance() { return balance; }
@@ -48,11 +49,12 @@ public:
       infile >> account;
       accounts.insert(pair<long, Account>(account.getAccNo(), account));
     }
-
+    Account::setLastAccountNumber(account.getAccNo());
     infile.close();
   }
 
   Account OpenAccount(string fname, string lname, float balance);
+  Account BalanceEnquiry(long accountNumber);
 };
 
 int main()
@@ -70,6 +72,7 @@ int main()
   {
     cout << "\n\tSelect one option below: \n";
     cout << "\n\t1. Open an Account\n";
+    cout << "\n\t2. Know your balance\n";
     cout << "\n\t7. Leave \n";
     cin >> choice;
     switch (choice)
@@ -82,11 +85,19 @@ int main()
       cout << "Enter your initial balance: ";
       cin >> balance;
       acc = b.OpenAccount(fname, lname, balance);
-      cout << "Congratulations! Your account was created \n";
+      cout << "**** Congratulations! Your account was created \n";
+      cout << acc;
+      break;
+    case 2:
+      cout << "Enter your account number: ";
+      cin >> accountNumber;
+      acc = b.BalanceEnquiry(accountNumber);
+      cout << endl
+           << "**** Here are your account Details: " << endl;
       cout << acc;
       break;
     case 7:
-      cout << "bye bye" << endl;
+      cout << "**** Bye bye ****" << endl;
       exit(0);
       break;
     default:
@@ -124,6 +135,13 @@ Account Bank::OpenAccount(string fname, string lname, float balance)
   return account;
 }
 
+Account Bank::BalanceEnquiry(long accountNumber)
+{
+  map<long, Account>::iterator itr;
+  itr = accounts.find(accountNumber);
+  return itr->second;
+}
+
 ifstream &operator>>(ifstream &ifs, Account &acc)
 {
   ifs >> acc.accountNumber;
@@ -149,4 +167,9 @@ ofstream &operator<<(ofstream &ofs, Account &acc)
   ofs << acc.lastName << endl;
   ofs << acc.balance << endl;
   return ofs;
+}
+
+void Account::setLastAccountNumber(long accountNumber)
+{
+  NextAccountNumber = accountNumber;
 }
