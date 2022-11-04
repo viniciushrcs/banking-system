@@ -17,7 +17,13 @@ private:
 public:
   Account() {}
   Account(string fname, string lname, float balance);
-  string getFName() { return firstName; };
+  long getAccNo() { return accountNumber; }
+  string getFirstName() { return firstName; }
+  string getLastName() { return lastName; }
+  float getBalance() { return balance; }
+  friend ifstream &operator>>(ifstream &ifs, Account &acc);
+  friend ofstream &operator<<(ofstream &ofs, Account &acc);
+  friend ostream &operator<<(ostream &os, Account &acc);
 };
 long Account::NextAccountNumber = 0;
 
@@ -27,7 +33,25 @@ private:
   map<long, Account> accounts;
 
 public:
-  Bank(){};
+  Bank()
+  {
+    Account account;
+    ifstream infile;
+    infile.open("Bank.data");
+    if (!infile)
+    {
+      cout << "Error while opening file!" << endl;
+      return;
+    }
+    while (!infile.eof())
+    {
+      infile >> account;
+      accounts.insert(pair<long, Account>(account.getAccNo(), account));
+    }
+
+    infile.close();
+  }
+
   Account OpenAccount(string fname, string lname, float balance);
 };
 
@@ -41,12 +65,12 @@ int main()
   long accountNumber;
   float balance;
 
-  cout << "****Welcome to the Gringotes*****" << endl;
+  cout << "**** Welcome to the Gringotes *****" << endl;
   do
   {
-    cout << "\n\tSelect one option below \n";
-    cout << "\n\t1 Open an Account\n";
-    cout << "\n\t7 Leave \n";
+    cout << "\n\tSelect one option below: \n";
+    cout << "\n\t1. Open an Account\n";
+    cout << "\n\t7. Leave \n";
     cin >> choice;
     switch (choice)
     {
@@ -59,7 +83,7 @@ int main()
       cin >> balance;
       acc = b.OpenAccount(fname, lname, balance);
       cout << "Congratulations! Your account was created \n";
-      printf("Your account %s", acc.getFName().c_str());
+      cout << acc;
       break;
     case 7:
       cout << "bye bye" << endl;
@@ -86,7 +110,43 @@ Account::Account(string fname, string lname, float balance)
 
 Account Bank::OpenAccount(string fname, string lname, float balance)
 {
+  ofstream outfile;
   Account account(fname, lname, balance);
-  accounts.insert(pair<long, Account>(1, account));
+
+  accounts.insert(pair<long, Account>(account.getAccNo(), account));
+  outfile.open("Bank.data", ios::trunc);
+
+  map<long, Account>::iterator itr;
+  for (itr = accounts.begin(); itr != accounts.end(); itr++)
+  {
+    outfile << itr->second;
+  }
   return account;
+}
+
+ifstream &operator>>(ifstream &ifs, Account &acc)
+{
+  ifs >> acc.accountNumber;
+  ifs >> acc.firstName;
+  ifs >> acc.lastName;
+  ifs >> acc.balance;
+  return ifs;
+}
+
+ostream &operator<<(ostream &os, Account &acc)
+{
+  os << "First Name: " << acc.getFirstName() << endl;
+  os << "Last Name: " << acc.getLastName() << endl;
+  os << "Account Number: " << acc.getAccNo() << endl;
+  os << "Balance: " << acc.getBalance() << endl;
+  return os;
+}
+
+ofstream &operator<<(ofstream &ofs, Account &acc)
+{
+  ofs << acc.accountNumber << endl;
+  ofs << acc.firstName << endl;
+  ofs << acc.lastName << endl;
+  ofs << acc.balance << endl;
+  return ofs;
 }
