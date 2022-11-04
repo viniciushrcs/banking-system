@@ -18,14 +18,16 @@ public:
   Account() {}
   Account(string fname, string lname, float balance);
   long getAccNo() { return accountNumber; }
-  static void setLastAccountNumber(long accountNumber);
   string getFirstName() { return firstName; }
   string getLastName() { return lastName; }
   float getBalance() { return balance; }
+
   friend ifstream &operator>>(ifstream &ifs, Account &acc);
   friend ofstream &operator<<(ofstream &ofs, Account &acc);
   friend ostream &operator<<(ostream &os, Account &acc);
   void Deposit(float amount);
+  static void setLastAccountNumber(long accountNumber);
+  static long getLastAccountNumber();
 };
 long Account::NextAccountNumber = 0;
 
@@ -57,7 +59,8 @@ public:
   Account OpenAccount(string fname, string lname, float balance);
   Account BalanceEnquiry(long accountNumber);
   void ShowAllAccounts();
-  void Deposit(long accountNumber, float amount);
+  Account Deposit(long accountNumber, float amount);
+  ~Bank();
 };
 
 int main()
@@ -110,9 +113,10 @@ int main()
       cin >> accountNumber;
       cout << "Enter the amount to deposit: ";
       cin >> amount;
-      b.Deposit(accountNumber, amount);
+      acc = b.Deposit(accountNumber, amount);
       cout << endl
            << "**** Amount is Deposited ****";
+      cout << acc;
       break;
     case 7:
       cout << "**** Bye bye ****" << endl;
@@ -204,14 +208,32 @@ void Bank::ShowAllAccounts()
   }
 }
 
-void Bank::Deposit(long accountNumber, float amount)
+Account Bank::Deposit(long accountNumber, float amount)
 {
   map<long, Account>::iterator itr;
   itr = accounts.find(accountNumber);
   itr->second.Deposit(amount);
+  return itr->second;
 }
 
 void Account::Deposit(float amount)
 {
   balance += amount;
+}
+
+long Account::getLastAccountNumber()
+{
+  return NextAccountNumber;
+}
+
+Bank::~Bank()
+{
+  ofstream outfile;
+  outfile.open("Bank.data", ios::trunc);
+  map<long, Account>::iterator itr;
+  for (itr = accounts.begin(); itr != accounts.end(); itr++)
+  {
+    outfile << itr->second;
+  }
+  outfile.close();
 }
