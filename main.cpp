@@ -25,6 +25,7 @@ public:
   friend ifstream &operator>>(ifstream &ifs, Account &acc);
   friend ofstream &operator<<(ofstream &ofs, Account &acc);
   friend ostream &operator<<(ostream &os, Account &acc);
+  void Deposit(float amount);
 };
 long Account::NextAccountNumber = 0;
 
@@ -56,6 +57,7 @@ public:
   Account OpenAccount(string fname, string lname, float balance);
   Account BalanceEnquiry(long accountNumber);
   void ShowAllAccounts();
+  void Deposit(long accountNumber, float amount);
 };
 
 int main()
@@ -67,6 +69,7 @@ int main()
   string fname, lname;
   long accountNumber;
   float balance;
+  float amount;
 
   cout << "**** Welcome to the Gringotes *****" << endl;
   do
@@ -75,6 +78,7 @@ int main()
     cout << "\n\t1. Open an Account\n";
     cout << "\n\t2. Show account data\n";
     cout << "\n\t3. Show all accounts data\n";
+    cout << "\n\t4. Deposit\n";
     cout << "\n\t7. Leave \n";
     cin >> choice;
     switch (choice)
@@ -100,6 +104,15 @@ int main()
       break;
     case 3:
       b.ShowAllAccounts();
+      break;
+    case 4:
+      cout << "Enter your account number: ";
+      cin >> accountNumber;
+      cout << "Enter the amount to deposit: ";
+      cin >> amount;
+      b.Deposit(accountNumber, amount);
+      cout << endl
+           << "**** Amount is Deposited ****";
       break;
     case 7:
       cout << "**** Bye bye ****" << endl;
@@ -189,4 +202,16 @@ void Bank::ShowAllAccounts()
          << "Account data" << endl
          << itr->second << endl;
   }
+}
+
+void Bank::Deposit(long accountNumber, float amount)
+{
+  map<long, Account>::iterator itr;
+  itr = accounts.find(accountNumber);
+  itr->second.Deposit(amount);
+}
+
+void Account::Deposit(float amount)
+{
+  balance += amount;
 }
