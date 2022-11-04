@@ -55,6 +55,7 @@ public:
 
   Account OpenAccount(string fname, string lname, float balance);
   Account BalanceEnquiry(long accountNumber);
+  void ShowAllAccounts();
 };
 
 int main()
@@ -72,7 +73,8 @@ int main()
   {
     cout << "\n\tSelect one option below: \n";
     cout << "\n\t1. Open an Account\n";
-    cout << "\n\t2. Know your balance\n";
+    cout << "\n\t2. Show account data\n";
+    cout << "\n\t3. Show all accounts data\n";
     cout << "\n\t7. Leave \n";
     cin >> choice;
     switch (choice)
@@ -95,6 +97,9 @@ int main()
       cout << endl
            << "**** Here are your account Details: " << endl;
       cout << acc;
+      break;
+    case 3:
+      b.ShowAllAccounts();
       break;
     case 7:
       cout << "**** Bye bye ****" << endl;
@@ -172,4 +177,16 @@ ofstream &operator<<(ofstream &ofs, Account &acc)
 void Account::setLastAccountNumber(long accountNumber)
 {
   NextAccountNumber = accountNumber;
+}
+
+void Bank::ShowAllAccounts()
+{
+  map<long, Account>::iterator itr;
+
+  for (itr = accounts.begin(); itr != accounts.end(); itr++)
+  {
+    cout << "Account number: " << itr->first << endl
+         << "Account data" << endl
+         << itr->second << endl;
+  }
 }
