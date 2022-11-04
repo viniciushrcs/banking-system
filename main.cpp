@@ -9,8 +9,7 @@ class Account
 {
 private:
   long accountNumber;
-  string firstName;
-  string lastName;
+  string firstName, lastName;
   float balance;
   static long NextAccountNumber;
 
@@ -22,12 +21,13 @@ public:
   string getLastName() { return lastName; }
   float getBalance() { return balance; }
 
-  friend ifstream &operator>>(ifstream &ifs, Account &acc);
-  friend ofstream &operator<<(ofstream &ofs, Account &acc);
-  friend ostream &operator<<(ostream &os, Account &acc);
   void Deposit(float amount);
+  void Withdraw(float amount);
   static void setLastAccountNumber(long accountNumber);
   static long getLastAccountNumber();
+  friend ofstream &operator<<(ofstream &ofs, Account &acc);
+  friend ifstream &operator>>(ifstream &ifs, Account &acc);
+  friend ostream &operator<<(ostream &os, Account &acc);
 };
 long Account::NextAccountNumber = 0;
 
@@ -58,8 +58,9 @@ public:
 
   Account OpenAccount(string fname, string lname, float balance);
   Account BalanceEnquiry(long accountNumber);
-  void ShowAllAccounts();
   Account Deposit(long accountNumber, float amount);
+  Account Withdraw(long accountNumber, float amount);
+  void ShowAllAccounts();
   ~Bank();
 };
 
@@ -82,6 +83,7 @@ int main()
     cout << "\n\t2. Show account data\n";
     cout << "\n\t3. Show all accounts data\n";
     cout << "\n\t4. Deposit\n";
+    cout << "\n\t5. Withdraw\n";
     cout << "\n\t7. Leave \n";
     cin >> choice;
     switch (choice)
@@ -116,6 +118,16 @@ int main()
       acc = b.Deposit(accountNumber, amount);
       cout << endl
            << "**** Amount is Deposited ****";
+      cout << acc;
+      break;
+    case 5:
+      cout << "Enter Account Number:";
+      cin >> accountNumber;
+      cout << "Enter Balance:";
+      cin >> amount;
+      acc = b.Withdraw(accountNumber, amount);
+      cout << endl
+           << "Amount Withdrawn" << endl;
       cout << acc;
       break;
     case 7:
@@ -154,6 +166,7 @@ Account Bank::OpenAccount(string fname, string lname, float balance)
   {
     outfile << itr->second;
   }
+  outfile.close();
   return account;
 }
 
@@ -210,8 +223,7 @@ void Bank::ShowAllAccounts()
 
 Account Bank::Deposit(long accountNumber, float amount)
 {
-  map<long, Account>::iterator itr;
-  itr = accounts.find(accountNumber);
+  map<long, Account>::iterator itr = accounts.find(accountNumber);
   itr->second.Deposit(amount);
   return itr->second;
 }
@@ -236,4 +248,16 @@ Bank::~Bank()
     outfile << itr->second;
   }
   outfile.close();
+}
+
+Account Bank::Withdraw(long accountNumber, float amount)
+{
+  map<long, Account>::iterator itr = accounts.find(accountNumber);
+  itr->second.Withdraw(amount);
+  return itr->second;
+}
+
+void Account::Withdraw(float amount)
+{
+  balance -= amount;
 }
